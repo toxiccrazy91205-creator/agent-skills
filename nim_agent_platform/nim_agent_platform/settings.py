@@ -11,7 +11,15 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+import mimetypes
 from pathlib import Path
+
+# Ensure standard MIME types are registered, especially for lightweight/slim Docker containers
+mimetypes.add_type("text/css", ".css", True)
+mimetypes.add_type("application/javascript", ".js", True)
+mimetypes.add_type("image/svg+xml", ".svg", True)
+mimetypes.add_type("image/png", ".png", True)
+mimetypes.add_type("image/webp", ".webp", True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
