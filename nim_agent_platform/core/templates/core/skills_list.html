@@ -1,0 +1,46 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Skills Explorer | NIM Agent Platform{% endblock %}
+{% block page_title %}Skills Explorer{% endblock %}
+{% block page_subtitle %}Browse the 23 senior engineering workflows the AI agent follows.{% endblock %}
+
+{% block content %}
+<!-- Search Form -->
+<div class="card" style="padding: 16px 20px;">
+    <form method="get" action="{% url 'skills_list' %}" style="display: flex; gap: 12px; align-items: center;">
+        <div style="flex-grow: 1; position: relative;">
+            <input type="text" name="q" class="form-control" placeholder="Search skills by name, keywords, or triggers..." value="{{ query }}">
+        </div>
+        <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Search</button>
+        {% if query %}
+            <a href="{% url 'skills_list' %}" class="btn btn-secondary" style="padding: 10px 20px;">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Skills Grid -->
+{% if skills %}
+    <div class="skills-grid">
+        {% for s in skills %}
+            <a href="{% url 'skills_detail' s.name %}" class="card skill-card">
+                <div class="card-title" style="margin-bottom: 12px; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+                    <span>{{ s.title }}</span>
+                    <span style="font-size: 0.75rem; font-family: monospace; color: var(--color-nvidia);">{{ s.name }}</span>
+                </div>
+                <p>{{ s.description }}</p>
+                <div style="margin-top: 16px; font-size: 0.85rem; color: var(--color-primary); font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                    Read Workflow Details 
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card" style="text-align: center; padding: 40px;">
+        <p style="color: var(--text-secondary);">No skills found matching your search query.</p>
+        <a href="{% url 'skills_list' %}" class="btn btn-secondary" style="margin-top: 16px;">Browse All Skills</a>
+    </div>
+{% endif %}
+{% endblock %}

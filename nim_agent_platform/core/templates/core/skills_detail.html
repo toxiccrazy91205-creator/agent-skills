@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ title }} | NIM Agent Platform{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}Detailed agent skill workflow and exit criteria guidelines.{% endblock %}
+
+{% block header_actions %}
+<div style="display: flex; gap: 12px;">
+    <a href="{% url 'skills_list' %}" class="btn btn-secondary">
+        &larr; Back to Skills
+    </a>
+    <form action="{% url 'session_create' %}" method="get">
+        <input type="hidden" name="preselect_skill" value="{{ skill_name }}">
+        <button type="submit" class="btn btn-primary">
+            Start Session with Skill
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="markdown-body">
+        {{ content_html|safe }}
+    </div>
+</div>
+{% endblock %}

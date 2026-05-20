@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Agent Sessions | NIM Agent Platform{% endblock %}
+{% block page_title %}Agent Sessions{% endblock %}
+{% block page_subtitle %}Manage, create, and launch interactive step-by-step agent executions.{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'session_create' %}" class="btn btn-primary">
+    + Create New Session
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-title">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        All Agent Sessions
+    </div>
+    
+    {% if sessions %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-primary);">
+                        <th style="padding: 16px 12px; font-weight: 700;">Title</th>
+                        <th style="padding: 16px 12px; font-weight: 700;">Applied Skill</th>
+                        <th style="padding: 16px 12px; font-weight: 700;">Status</th>
+                        <th style="padding: 16px 12px; font-weight: 700;">Created At</th>
+                        <th style="padding: 16px 12px; font-weight: 700; text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in sessions %}
+                        <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s ease;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
+                            <td style="padding: 16px 12px;">
+                                <a href="{% url 'session_detail' s.id %}" style="color: var(--text-primary); font-weight: 700; text-decoration: none;">{{ s.title }}</a>
+                            </td>
+                            <td style="padding: 16px 12px;">
+                                <code style="color: var(--color-primary); background: var(--bg-sidebar); padding: 4px 8px; border-radius: var(--rounded-none); font-family: monospace;">{{ s.skill_name }}</code>
+                            </td>
+                            <td style="padding: 16px 12px;">
+                                <span class="badge {% if s.status == 'running' %}badge-warning{% elif s.status == 'completed' %}badge-success{% else %}badge-info{% endif %}">
+                                    {{ s.status }}
+                                </span>
+                            </td>
+                            <td style="padding: 16px 12px; color: var(--text-secondary);">
+                                {{ s.created_at|date:"Y-m-d H:i" }}
+                            </td>
+                            <td style="padding: 16px 12px; text-align: right;">
+                                <a href="{% url 'session_detail' s.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">
+                                    Open Console &rarr;
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px;">
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">You haven't created any sessions yet.</p>
+            <a href="{% url 'session_create' %}" class="btn btn-primary">Create Your First Session</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

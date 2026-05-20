@@ -1,0 +1,128 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Dashboard | NIM Agent Platform{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Overview of your NVIDIA NIM Agent environment and sessions.{% endblock %}
+
+{% block content %}
+<!-- API Connection Status Banner -->
+{% if not config.nvidia_api_key %}
+<div class="connectivity-banner">
+    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    </svg>
+    <div>
+        <strong>NVIDIA API Key Missing:</strong> You must configure your NVIDIA API key in <a href="{% url 'settings' %}" style="color: inherit; text-decoration: underline;">Settings</a> to connect the agent to the LLM backend.
+    </div>
+</div>
+{% endif %}
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-details">
+            <h3>{{ sessions_count }}</h3>
+            <p>Total Sessions</p>
+        </div>
+        <div class="stat-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-details">
+            <h3>{{ active_sessions_count }}</h3>
+            <p>Active Runs</p>
+        </div>
+        <div class="stat-icon" style="color: var(--warning);">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-details">
+            <h3>{{ skills_count }}</h3>
+            <p>Loaded Skills</p>
+        </div>
+        <div class="stat-icon" style="color: var(--color-nvidia);">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-details">
+            <h3>{{ workspace_files_count }}</h3>
+            <p>Workspace Files</p>
+        </div>
+        <div class="stat-icon" style="color: var(--color-secondary);">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<div style="display: flex; gap: 24px; flex-wrap: wrap;">
+    <!-- Recent Sessions -->
+    <div class="card" style="flex: 2; min-width: 320px;">
+        <div class="card-title">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Recent Agent Sessions
+        </div>
+        {% if recent_sessions %}
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                {% for s in recent_sessions %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-terminal-elevated); border-radius: var(--rounded-none); border: 1px solid var(--border-color);">
+                        <div>
+                            <a href="{% url 'session_detail' s.id %}" style="color: var(--text-primary); font-weight: 700; text-decoration: none; font-size: 0.95rem;">{{ s.title }}</a>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">Applied Skill: <code style="color: var(--color-primary);">{{ s.skill_name }}</code></div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="badge {% if s.status == 'running' %}badge-warning{% elif s.status == 'completed' %}badge-success{% else %}badge-info{% endif %}">{{ s.status }}</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">{{ s.created_at|date:"M d, H:i" }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div style="margin-top: 16px; text-align: right;">
+                <a href="{% url 'session_list' %}" style="color: var(--color-primary); font-size: 0.9rem; text-decoration: none; font-weight: 700;">View All Sessions &rarr;</a>
+            </div>
+        {% else %}
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">No sessions created yet.</p>
+            <div style="margin-top: 16px;">
+                <a href="{% url 'session_create' %}" class="btn btn-primary">Create First Session</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Environment Config -->
+    <div class="card" style="flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div class="card-title">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                </svg>
+                Environment Setup
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                <div>
+                    <strong>NVIDIA Model:</strong>
+                    <div style="font-family: monospace; background: var(--bg-sidebar); padding: 6px 10px; border-radius: var(--rounded-none); border: 1px solid var(--border-color); margin-top: 4px; color: var(--color-primary);">{{ config.model_name }}</div>
+                </div>
+                <div>
+                    <strong>Active Workspace:</strong>
+                    <div style="font-family: monospace; background: var(--bg-sidebar); padding: 6px 10px; border-radius: var(--rounded-none); border: 1px solid var(--border-color); margin-top: 4px; font-size: 0.8rem; word-break: break-all; color: var(--text-secondary);">
+                        {% if config.workspace_path %}{{ config.workspace_path }}{% else %}Not defined (will use default relative workspace){% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'settings' %}" class="btn btn-secondary" style="width: 100%;">Configure Settings</a>
+    </div>
+</div>
+{% endblock %}

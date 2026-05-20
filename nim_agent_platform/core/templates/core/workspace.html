@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Workspace Explorer | NIM Agent Platform{% endblock %}
+{% block page_title %}Workspace Explorer{% endblock %}
+{% block page_subtitle %}Browse, edit, and save files inside the active agent sandbox.{% endblock %}
+
+{% block header_actions %}
+{% if session %}
+<a href="{% url 'session_detail' session.id %}" class="btn btn-secondary">
+    &larr; Back to Session Console
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="workspace-container">
+    <!-- Left panel: Files tree list -->
+    <div class="explorer-tree">
+        <h3 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+            File Tree Explorer
+        </h3>
+        
+        {% if files_tree %}
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                {% for f in files_tree %}
+                    <a href="?{% if session_id %}session_id={{ session_id }}&{% endif %}file={{ f }}" 
+                       class="tree-node {% if selected_file == f %}active{% endif %}">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        {{ f }}
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: var(--text-secondary); font-size: 0.85rem;">Workspace is empty. Start running the agent to create files!</p>
+        {% endif %}
+    </div>
+
+    <!-- Right panel: Code editor -->
+    <div class="editor-panel">
+        {% if selected_file %}
+            <form method="post" style="display: flex; flex-direction: column; height: 100%;">
+                {% csrf_token %}
+                <div class="editor-header">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">Editing: {{ selected_file }}</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">Workspace path: {{ workspace_path }}</span>
+                    </div>
+                    <button type="submit" name="action" value="save" class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;">
+                        Save Changes
+                    </button>
+                </div>
+                
+                {% if message %}
+                    <div style="background: rgba(16, 185, 129, 0.15); color: var(--success); padding: 8px 16px; font-size: 0.85rem; border-bottom: 1px solid var(--border-color);">
+                        {{ message }}
+                    </div>
+                {% endif %}
+                
+                <textarea name="content" class="editor-textarea">{{ file_content }}</textarea>
+            </form>
+        {% else %}
+            <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-secondary); padding: 40px;">
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-bottom: 16px; color: var(--text-muted);">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <p style="font-size: 1rem; font-weight: 500;">No File Selected</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Select a file from the explorer sidebar to view or edit its contents.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

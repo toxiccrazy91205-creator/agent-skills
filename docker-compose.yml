@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: nim_agent_platform/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - nim_data:/data
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=local-dev-insecure-key-docker
+      # - NVIDIA_API_KEY=your_api_key_here
+
+volumes:
+  nim_data:

@@ -1,0 +1,62 @@
+# Django / Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/
+python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.env
+.venv
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# SQLite Database & Storage
+*.sqlite3
+db.sqlite3
+/nim_agent_platform/db.sqlite3
+/nim_agent_platform/staticfiles/
+/nim_agent_platform/workspace/
+
+# IDEs & Editor configs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
+
+# Logs
+*.log
+log/
+logs/
+
+# Docker
+.dockerignore
+
+# OS specific files
+.DS_Store
+Thumbs.db

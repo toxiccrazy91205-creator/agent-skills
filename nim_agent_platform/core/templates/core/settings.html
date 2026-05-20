@@ -1,0 +1,82 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Settings | NIM Agent Platform{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block page_subtitle %}Configure NVIDIA NIM API credentials, select models, and set the sandbox workspace path.{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px;">
+    {% if message %}
+        <div class="card" style="padding: 16px 20px; border-color: {% if message_type == 'success' %}var(--success){% else %}var(--danger){% endif %}; background: {% if message_type == 'success' %}rgba(16, 185, 129, 0.05){% else %}rgba(239, 68, 68, 0.05){% endif %};">
+            <div style="display: flex; align-items: center; gap: 10px; color: {% if message_type == 'success' %}var(--success){% else %}var(--danger){% endif %};">
+                {% if message_type == 'success' %}
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                {% else %}
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                {% endif %}
+                <strong>{{ message }}</strong>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-title">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            </svg>
+            Configuration Panel
+        </div>
+        
+        <form method="post" action="{% url 'settings' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label" for="nvidia_api_key">NVIDIA API Key</label>
+                <input type="password" id="nvidia_api_key" name="nvidia_api_key" class="form-control" 
+                       value="{{ config.nvidia_api_key }}" placeholder="nvapi-..." autocomplete="off">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                    Generate an API key from the <a href="https://build.nvidia.com/" target="_blank" style="color: var(--color-primary);">NVIDIA API Catalog</a>.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="model_name">NVIDIA NIM Model Name</label>
+                <select id="model_name" name="model_name" class="form-control">
+                    <option value="meta/llama-3.3-70b-instruct" {% if config.model_name == "meta/llama-3.3-70b-instruct" %}selected{% endif %}>meta/llama-3.3-70b-instruct (Recommended)</option>
+                    <option value="meta/llama-3.1-405b-instruct" {% if config.model_name == "meta/llama-3.1-405b-instruct" %}selected{% endif %}>meta/llama-3.1-405b-instruct (Ultra high quality)</option>
+                    <option value="nvidia/llama-3.1-nemotron-70b-instruct" {% if config.model_name == "nvidia/llama-3.1-nemotron-70b-instruct" %}selected{% endif %}>nvidia/llama-3.1-nemotron-70b-instruct (Nemotron alignment)</option>
+                    <option value="meta/llama-3.1-8b-instruct" {% if config.model_name == "meta/llama-3.1-8b-instruct" %}selected{% endif %}>meta/llama-3.1-8b-instruct (Fast & lightweight)</option>
+                </select>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                    Select the model to run your agent queries. You must have access to the model in the catalog.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="workspace_path">Sandbox Workspace Path</label>
+                <input type="text" id="workspace_path" name="workspace_path" class="form-control" 
+                       value="{{ config.workspace_path }}" placeholder="e.g. C:\path\to\workspace">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                    Absolute path where the agent creates files and runs commands. Defaults to <code>nim_agent_platform/workspace/</code>.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 30px;">
+                <button type="submit" name="action" value="save" class="btn btn-primary">
+                    Save Configuration
+                </button>
+                <button type="submit" name="action" value="test_connection" class="btn btn-secondary">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 4px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Test Connection
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

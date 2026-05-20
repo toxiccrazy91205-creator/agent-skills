@@ -1,0 +1,63 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Create Session | NIM Agent Platform{% endblock %}
+{% block page_title %}Create Agent Session{% endblock %}
+{% block page_subtitle %}Start a new task, select a workflow skill, and run the agent.{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px;">
+    {% if error %}
+        <div class="card" style="padding: 16px 20px; border-color: var(--danger); background: rgba(239, 68, 68, 0.05); color: var(--danger); margin-bottom: 20px;">
+            <strong>Error:</strong> {{ error }}
+        </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-title">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Session Details
+        </div>
+        
+        <form method="post" action="{% url 'session_create' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label" for="title">Session Title</label>
+                <input type="text" id="title" name="title" class="form-control" placeholder="e.g. Build Calculator App with Pytest" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="skill_name">Select Agent Skill Workflow</label>
+                <select id="skill_name" name="skill_name" class="form-control" required>
+                    <option value="" disabled {% if not request.GET.preselect_skill %}selected{% endif %}>-- Choose an engineering skill --</option>
+                    {% for s in skills %}
+                        <option value="{{ s.name }}" {% if request.GET.preselect_skill == s.name %}selected{% endif %}>{{ s.title }} ({{ s.name }})</option>
+                    {% endfor %}
+                </select>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                    The agent will load this skill's full <code>SKILL.md</code> instructions into its system prompt and strictly follow its guidelines.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="user_prompt">Agent Instructions (Prompt)</label>
+                <textarea id="user_prompt" name="user_prompt" class="form-control" placeholder="Define the task, boundaries, and files to create. E.g. 'Build a python class named Calculator that implements add, subtract, multiply, divide. Add unit tests using pytest in a separate test file. Follow the TDD process.'" required></textarea>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                    Describe what you want the agent to build. Be specific about constraints, expected files, and programming languages.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary">
+                    Create & Start Session
+                </button>
+                <a href="{% url 'session_list' %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
